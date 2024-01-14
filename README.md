@@ -11,9 +11,9 @@ Finam GRPC-client on Golang
 
 
 ```bash
-  go get github.com/evsamsonov/FinamTradeGo/v2
+  go get github.com/evsamsonov/FinamTradeGo/v2 
 ```
-    
+
 ## Examples
 
 ### Пример получения свечей
