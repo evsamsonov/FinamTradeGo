@@ -78,10 +78,10 @@ func (f *FinamClient) UnSubscribeOrderBook(in *tradeapi.OrderBookUnsubscribeRequ
 }
 
 func (f *FinamClient) SubscribeOrderTrade(in *tradeapi.OrderTradeSubscribeRequest) {
-
 	e, err := f.events.GetEvents(f.ctx)
 	if err != nil {
 		f.errChan <- err
+		return
 	}
 
 	payload := &tradeapi.SubscriptionRequest{
@@ -93,17 +93,22 @@ func (f *FinamClient) SubscribeOrderTrade(in *tradeapi.OrderTradeSubscribeReques
 	err = e.Send(payload)
 	if err != nil {
 		f.errChan <- err
+		return
 	}
 
 	for {
 		msg, err := e.Recv()
 		if err != nil {
 			f.errChan <- err
+			return
 		}
 
-		f.orderTradeChan <- msg.GetTrade()
-		f.orderChan <- msg.GetOrder()
-		time.Sleep(1 * time.Second)
+		switch {
+		case msg.GetTrade() != nil:
+			f.orderTradeChan <- msg.GetTrade()
+		case msg.GetOrder() != nil:
+			f.orderChan <- msg.GetOrder()
+		}
 	}
 }
 
